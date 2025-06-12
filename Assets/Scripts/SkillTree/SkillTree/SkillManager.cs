@@ -1,0 +1,169 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.UI;
+using static Unity.VisualScripting.Member;
+
+public class SkillManager
+{
+    /// <summary>
+    /// initialize these classes
+    /// </summary>
+    public ScriptableSkillNode rootNode; // skill tree start data
+    public GameObject skillButtonPrefab; // a button prefab.
+    public RectTransform skilltreePanel; // the panel where the skill tree is allowed to be
+    public PlayerProfile playerProfile; // just player data that i will need to migrate a bit
+    private PlayerControler playerControler;
+
+    GameManager gameManager;
+
+    private SkillGroup skilltree; // skill tree start
+    private ScriptableSkilltreeSave skilltreeData = new ScriptableSkilltreeSave(); // script to save and load data to a txt file
+
+    public SkillManager(ScriptableSkillNode startingNode, GameObject buttonPrefab, RectTransform skilltreeBorders, PlayerControler player, GameManager gameManager)
+    {
+        rootNode = startingNode;
+        skillButtonPrefab = buttonPrefab;
+        skilltreePanel = skilltreeBorders;
+        playerControler = player;
+
+        this.gameManager = gameManager;
+
+        //gameDataFacade = new GameDataFacade();
+        playerProfile = new PlayerProfile();
+
+        skilltree = GenerateSkilltree(this.rootNode);
+        Debug.Log("Skill tree gegenereerd!");
+        LogSkillTree(skilltree);
+        CreateSkillUI(skilltree, new Vector2(0, 0));
+    }
+
+    private SkillGroup GenerateSkilltree(ScriptableSkillNode rootNode)
+    {
+        SkillGroup currentNode = new SkillGroup(playerProfile, skilltreeData);
+        currentNode.skillName = rootNode.skillName;
+        currentNode.xpCosts = rootNode.xpCosts;
+        currentNode.unlocked = rootNode.unlocked;
+
+        foreach (ScriptableSkillNode child in rootNode.children)
+        {
+            if (child.children.Count == 0)
+            {
+                SkillNode skillNode = new SkillNode(playerProfile, skilltreeData);
+                skillNode.skillName = child.skillName;
+                skillNode.xpCosts = child.xpCosts;
+                currentNode.children.Add(skillNode);
+            }
+            else
+            {
+                SkillGroup childGroup = GenerateSkilltree(child);
+                currentNode.children.Add(childGroup);
+            }
+        }
+        //skillNodes[count].skill = currentNode;
+        //count++;
+        Debug.Log("test");
+        return currentNode;
+    }
+
+    private void LogSkillTree(SkillLeaf node, string indent = "")
+    {
+        if (node is SkillGroup group)
+        {
+            Debug.Log($"{indent}Group: {group.skillName} (XP: {group.xpCosts})");
+
+            foreach (SkillLeaf child in group.children)
+            {
+                LogSkillTree(child, indent + "  ");
+            }
+        }
+        else if (node is SkillNode skill)
+        {
+            Debug.Log($"{indent}Skill: {skill.skillName} (XP: {skill.xpCosts})");
+        }
+    }
+
+    void CreateSkillUI(SkillLeaf skill, Vector2 position)
+    {
+        GameObject buttonObj = GameObject.Instantiate(skillButtonPrefab, skilltreePanel);
+        gameManager.skillButtonList.Add(buttonObj);
+        RectTransform rt = buttonObj.GetComponent<RectTransform>();
+        rt.anchoredPosition = position;
+
+        Debug.Log("test2");
+        Image iconImage = buttonObj.GetComponentInChildren<Image>();
+        //iconImage.sprite = skill.icon;
+
+        TextMeshProUGUI text = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
+        text.text = skill.skillName;
+        Button button = buttonObj.GetComponent<Button>();
+        button.onClick.AddListener(() => Debug.Log($"Clicked on {skill.skillName}"));
+        button.onClick.AddListener(() => skill.Buy(playerProfile));
+
+
+        if (skill is SkillGroup group)
+        {
+            float xSpacing = 160f;
+            float ySpacing = 100f;
+            int count = group.children.Count;
+            int index = 0;
+
+            float totalWidth = GetSubtreeWidth(group);
+            float currentX = position.x - (totalWidth * xSpacing / 2f);
+
+            foreach (SkillLeaf skillnode in group.children)
+            {
+                float childWidth = GetSubtreeWidth(skillnode);
+                Vector2 childPos = position + new Vector2(currentX + (childWidth * xSpacing / 2f), -ySpacing);
+                CreateSkillUI(skillnode, childPos);
+                currentX += childWidth * xSpacing;
+                index++;
+            }
+        }
+    }
+
+    private void ObjectiveySkillTree(SkillLeaf node, string indent = "")
+    {
+        if (node is SkillGroup group)
+        {
+            Debug.Log($"{indent}Group: {group.skillName} (XP: {group.xpCosts})");
+
+            foreach (SkillLeaf child in group.children)
+            {
+                LogSkillTree(child, indent + "  ");
+            }
+        }
+        else if (node is SkillNode skill)
+        {
+            Debug.Log($"{indent}Skill: {skill.skillName} (XP: {skill.xpCosts})");
+        }
+    }
+
+    float GetSubtreeWidth(SkillLeaf skill)
+    {
+        if (skill is SkillGroup group)
+        {
+            float width = 0f;
+            foreach (var child in group.children)
+            {
+                width += GetSubtreeWidth(child);
+            }
+            return Mathf.Max(width, 1f); // Zorg dat lege groepen minstens 1 breedte-eenheid zijn
+        }
+        return 1f; // Een enkele node is 1 eenheid breed
+    }
+
+    public void saveSkills()
+    {
+        //gameDataFacade.SaveAll();
+        skilltreeData.Save();
+    }
+
+    public void loadSkills()
+    {
+        skilltreeData.Save();
+    }
+}

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 054d7cdfd5b2d9643a9940f5ab53e8a9, type: 3}
+  m_Name: RestingPlace
+  m_EditorClassIdentifier: 
+  children:
+  - {fileID: 11400000, guid: 4f9538c93c89a8145b33f0f2fba75e5e, type: 2}
+  - {fileID: 11400000, guid: 528215b8fe64dc74abebd526b738459f, type: 2}
+  skillName: RestingPlace
+  xpCosts: 2
+  Unlocked: 0
+  bought: 0
+  active: 0
