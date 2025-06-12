@@ -8,7 +8,7 @@ public class EnemySpawner
     private int enemyCount;
     private int eEnemyCount;
     private List<float> enemyCountList;
-    private int waveCounter = 0;
+    public int waveCounter = 0;
 
     private GameObject enemyPrefab;
     private GameObject eEnemyPrefab;

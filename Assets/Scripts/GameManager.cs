@@ -15,11 +15,9 @@ public class GameManager : MonoBehaviour
     private BoxCollider2D playerCollider;
 
     [Header("Gun info")]
-    public List<Bullet> bulletList;
-    public List<GameObject> bulletObjectList;
-    public GameObject pistol;
-    public GameObject ar;
-    public GameObject miniGun;
+    public List<GameObject> weapons;
+    public GameObject bulletObjectPrefab;
+    public List<Bullet> bulletList = new List<Bullet>();
 
     [Header("Player Cam")]
     private Camera _camera;
@@ -56,19 +54,22 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        TurnOffAllUI();
         _camera = Camera.main;
         playerCollider = player.GetComponent<BoxCollider2D>();
-        playerControler = new PlayerControler(player, playerMovementSpeed, playerDrag, playerProfile);
         skillManager = new SkillManager(rootNode, skillButtonPrefab, skilltreePanel, playerControler, this, playerProfile, skilltreeData);
         enemySpawner = new EnemySpawner(this, player, spawnPoints, enemyWaves, enemyPrefab, eEnemyPrefab);
+        playerControler = new PlayerControler(player, playerMovementSpeed, playerDrag, playerProfile, weapons, this);
     }
 
     public void SetMenuStartGame()
     {
-        state = gameState.Playing;
+        playerControler.hp = playerControler.maxHp;
+        enemySpawner.waveCounter = 0;
         enemySpawner.ReadNextWave();
         StartCoroutine(enemySpawner.SpawnEnemies());
         StartCoroutine(enemySpawner.SpawnEEnemies());
+        state = gameState.Playing;
     }
 
     public void SetMenuSkillTree()
@@ -101,11 +102,59 @@ public class GameManager : MonoBehaviour
                 SwitchButtonState(skillButtonList, false);
                 SwitchButtonState(playingUI, true);
 
+                playerControler.ChangeWeapon();
+                playerControler.Shooting(shootDirection);
+
+                if (playerControler.hp <= 0)
+                {
+                    state = gameState.GameOverMenu;
+                }
+
+                if (aliveEnemies == null)
+                { 
+                    return;
+                }
+                for (int i = aliveEnemies.Count - 1; i >= 0; i--)
+                {
+                    var enemy = aliveEnemies[i];
+                    if (enemy.hp <= 0)
+                    {
+                        Destroy(enemy.enemy);
+                        aliveEnemies.RemoveAt(i);
+                        continue; // Skip rest since enemy is removed
+                    }
+                    if (playerCollider.bounds.Intersects(enemy.collider.bounds))
+                    {
+                        playerControler.hp -= enemy.damage;
+                        Destroy(enemy.enemy);
+                        aliveEnemies.RemoveAt(i);
+                        continue;
+                    }
+                    if (bulletList != null)
+                    {
+                        for (int O = bulletList.Count - 1; O >= 0; O--)
+                        {
+                            var bullet = bulletList[O];
+                            if (bullet.bulletObject == null || bullet.lifeSpan <= 0)
+                            {
+                                bulletList.RemoveAt(O);
+                                continue;
+                            }
+                            CircleCollider2D bulletCollider = bullet.bulletObject.GetComponent<CircleCollider2D>();
+                            if (bulletCollider.bounds.Intersects(enemy.collider.bounds))
+                            {
+                                enemy.hp -= bullet.damage;
+                                Destroy(bullet.bulletObject);
+                                bulletList.RemoveAt(O);
+                            }
+                        }
+                    }
+                }
                 break;
             case gameState.StartingMenu:
                 SwitchButtonState(menuButtons, true);
                 SwitchButtonState(skillButtonList, false);
-                SwitchButtonState(gameOverButtons, false);
+                SwitchButtonState(gameOverButtons, false);   
                 break;
             case gameState.SkillTreeMenu:
                 SwitchButtonState(menuButtons, false);
@@ -116,28 +165,6 @@ public class GameManager : MonoBehaviour
                 SwitchButtonState(playingUI, false);
                 break;
         }
-
-        if (playerControler.hp <= 0)
-        {
-            state = gameState.GameOverMenu;
-        }
-
-        foreach (var enemy in aliveEnemies)
-        {
-            if (playerCollider.bounds.Intersects(enemy.collider.bounds))
-            {
-                Debug.Log("Collision with enemy!");
-            }
-            foreach (var bullet in bulletList)
-            {
-                CircleCollider2D bulletColider = bullet.bulletObject.GetComponent<CircleCollider2D>();
-                if (bulletColider.bounds.Intersects(enemy.collider.bounds))
-                {
-                    //enemy.hp -= bullet.damage;
-                }
-            }
-        }
-
     }
 
     private void FixedUpdate()
@@ -152,9 +179,12 @@ public class GameManager : MonoBehaviour
                     enemy.MoveEnemy();
                 }
             }
-            if (aliveEnemies != null)
+            if (bulletList != null)
             {
-                state = gameState.SkillTreeMenu;
+                foreach (var bullet in bulletList)
+                {
+                    bullet.MoveBullet();
+                }
             }
             Camera.main.transform.position = new Vector3(player.transform.position.x, player.transform.position.y, -10f);
         }
@@ -172,5 +202,13 @@ public class GameManager : MonoBehaviour
     {
         skillManager.saveSkills();
         Application.Quit();
+    }
+
+    private void TurnOffAllUI()
+    {
+        SwitchButtonState(menuButtons, false);
+        SwitchButtonState(skillButtonList, false);
+        SwitchButtonState(gameOverButtons, false);
+        SwitchButtonState(playingUI, false);
     }
 }

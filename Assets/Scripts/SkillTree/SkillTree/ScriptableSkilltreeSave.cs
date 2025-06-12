@@ -16,14 +16,33 @@ public class ScriptableSkilltreeSave : ScriptableObject
         File.WriteAllText(GetSavePath(), json);
     }
 
-    public void Load()
+    public List<string> Load()
     {
         string path = GetSavePath();
         if (File.Exists(path))
         {
             string json = File.ReadAllText(path);
             JsonUtility.FromJsonOverwrite(json, this);
+            return unlockedSkills;
         }
+        else
+        {
+            return null;
+        }
+    }
+
+    public void ResetSkills()
+    {
+        unlockedSkills.Clear();
+        activeSkills.Clear();
+
+        string path = GetSavePath();
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+        }
+
+        Save(); // Optional: save the cleared state
     }
 
     public void AddUnlockedSkill(string skill)

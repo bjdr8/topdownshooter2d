@@ -1,19 +1,34 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public abstract class Bullet
 {
     public GameObject bulletObject;
     protected GameManager gameManager;
+    protected Vector2 direction;
+    protected Rigidbody2D rb;
+    public float lifeSpan = 30;
     public float damage;
     public float speed;
     public float size;
 
-    public Bullet(GameObject bulletObjectPrefab, GameManager gameManager)
+    public Bullet(GameManager gameManager, Vector2 direction)
     {
-        bulletObject = GameObject.Instantiate(bulletObjectPrefab);
         this.gameManager = gameManager;
+        bulletObject = GameObject.Instantiate(this.gameManager.bulletObjectPrefab, gameManager.player.transform.position, Quaternion.identity);
+        rb = bulletObject.GetComponent<Rigidbody2D>();
+        ShootDirection(direction);
     }
-    public abstract void Shoot(Vector2 direction);
+    public void ShootDirection(Vector2 direction)
+    {
+        this.direction = direction;
+    }
+
+    public void MoveBullet()
+    {
+        rb.velocity = new Vector2(direction.x, direction.y).normalized * speed;
+        lifeSpan -= Time.deltaTime;
+    }
 }

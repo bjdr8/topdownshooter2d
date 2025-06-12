@@ -72,7 +72,6 @@ public class SkillManager
         }
         //skillNodes[count].skill = currentNode;
         //count++;
-        Debug.Log("test");
         return currentNode;
     }
 
@@ -100,7 +99,6 @@ public class SkillManager
         RectTransform rt = buttonObj.GetComponent<RectTransform>();
         rt.anchoredPosition = position;
 
-        Debug.Log("test2");
         Image iconImage = buttonObj.GetComponentInChildren<Image>();
         //iconImage.sprite = skill.icon;
 
@@ -171,6 +169,6 @@ public class SkillManager
 
     public void loadSkills()
     {
-        skilltreeData.Save();
+        skilltreeData.Load();
     }
 }

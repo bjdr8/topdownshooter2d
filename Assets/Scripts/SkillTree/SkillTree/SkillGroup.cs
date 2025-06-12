@@ -27,7 +27,6 @@ public class SkillGroup : SkillLeaf
 
         if (xpCosts <= player.xp && bought == false)
         {
-            Debug.Log("u bought the item");
             Debug.Log("aquired skill");
             active = true;
             bought = true;

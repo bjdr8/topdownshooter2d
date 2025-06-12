@@ -1,17 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class BaseEnemy
 {
-    protected GameObject enemy;
+    public GameObject enemy;
     protected GameObject target;
-    public BoxCollider2D collider;
+    public CircleCollider2D collider;
 
     protected Vector2 moveDirection;
     protected float moveSpeed;
     public float hp;
-    protected int damage;
+    public int damage;
 
     protected Rigidbody2D rb;
     public BaseEnemy(GameObject player, GameObject enemy)
@@ -20,7 +21,7 @@ public class BaseEnemy
         this.enemy = enemy;
 
         rb = this.enemy.GetComponent<Rigidbody2D>();
-        collider = this.enemy.GetComponent<BoxCollider2D>();
+        collider = this.enemy.GetComponent<CircleCollider2D>();
     }
 
     public virtual void DirectionCalc()
