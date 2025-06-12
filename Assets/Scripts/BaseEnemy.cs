@@ -6,10 +6,12 @@ public class BaseEnemy
 {
     protected GameObject enemy;
     protected GameObject target;
+    public BoxCollider2D collider;
 
     protected Vector2 moveDirection;
     protected float moveSpeed;
-    protected int hp;
+    public float hp;
+    protected int damage;
 
     protected Rigidbody2D rb;
     public BaseEnemy(GameObject player, GameObject enemy)
@@ -18,6 +20,7 @@ public class BaseEnemy
         this.enemy = enemy;
 
         rb = this.enemy.GetComponent<Rigidbody2D>();
+        collider = this.enemy.GetComponent<BoxCollider2D>();
     }
 
     public virtual void DirectionCalc()

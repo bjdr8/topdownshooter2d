@@ -6,7 +6,7 @@ using UnityEngine;
 public class PlayerProfile
 {
     public event Action OnXpChanged;
-    public int xp { get; private set; } = 100;
+    public int xp { get; private set; } = 0;
     private int ProfileLevel;
 
     public PlayerProfile()

@@ -8,5 +8,6 @@ public class Enemy : BaseEnemy
     {
         hp = 3;
         moveSpeed = 2f;
+        damage = 1;
     }
 }

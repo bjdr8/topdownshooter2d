@@ -6,6 +6,8 @@ using UnityEngine.EventSystems;
 public class PlayerControler // in de toekomst playercontroler manager maken die elk player script aan stuurt maar nu gewoon deze als de volledige player gebruiken
 {
     GameObject player;
+    public int hp = 6;
+
     private float horizontalInput;
     private float verticalInput;
 
@@ -26,27 +28,35 @@ public class PlayerControler // in de toekomst playercontroler manager maken die
         this.profile = profile;
     }
 
+    public void ChangeWeapon()
+    {
+        if (Input.GetKeyUp(KeyCode.Keypad1))
+        {
+
+        }   
+    }
+
     public void MovePlayer()
     {
         MyInput();
         MovePlayerLogic();
     }
 
-    public void MyInput()
+    public void SetDragAndSpeed(float speed, float drag)
+    {
+        movementSpeed = speed;
+        rb.drag = drag;
+    }
+
+    private void MyInput()
     {
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
     }
 
-    public void MovePlayerLogic()
+    private void MovePlayerLogic()
     {
         Vector2 moveDirection = new Vector2(horizontalInput, verticalInput).normalized;
         rb.AddForce(moveDirection * movementSpeed, ForceMode2D.Force);
-    }
-
-    public void SetDragAndSpeed(float speed, float drag)
-    {
-        movementSpeed = speed;
-        rb.drag = drag;
     }
 }

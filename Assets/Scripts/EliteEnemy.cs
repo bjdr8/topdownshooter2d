@@ -8,5 +8,6 @@ public class EliteEnemy : BaseEnemy
     {
         hp = 10;
         moveSpeed = 4f;
+        damage = 2;
     }
 }

@@ -21,14 +21,21 @@ public class SkillManager
     GameManager gameManager;
 
     private SkillGroup skilltree; // skill tree start
-    private ScriptableSkilltreeSave skilltreeData = new ScriptableSkilltreeSave(); // script to save and load data to a txt file
+    private ScriptableSkilltreeSave skilltreeData; // script to save and load data to a txt file
 
-    public SkillManager(ScriptableSkillNode startingNode, GameObject buttonPrefab, RectTransform skilltreeBorders, PlayerControler player, GameManager gameManager, PlayerProfile playerProfile)
+    public SkillManager(ScriptableSkillNode startingNode,
+           GameObject buttonPrefab,
+           RectTransform skilltreeBorders,
+           PlayerControler player,
+           GameManager gameManager,
+           PlayerProfile playerProfile,
+           ScriptableSkilltreeSave skilltreeDatapre)
     {
         rootNode = startingNode;
         skillButtonPrefab = buttonPrefab;
         skilltreePanel = skilltreeBorders;
         playerControler = player;
+        skilltreeData = skilltreeDatapre;
 
         this.gameManager = gameManager;
 

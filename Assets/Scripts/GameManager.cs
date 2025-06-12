@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,7 +11,15 @@ public class GameManager : MonoBehaviour
     public float playerMovementSpeed;
     public float playerDrag;
     private PlayerControler playerControler;
-    public PlayerProfile playerProfile = new PlayerProfile();
+    private PlayerProfile playerProfile = new PlayerProfile();
+    private BoxCollider2D playerCollider;
+
+    [Header("Gun info")]
+    public List<Bullet> bulletList;
+    public List<GameObject> bulletObjectList;
+    public GameObject pistol;
+    public GameObject ar;
+    public GameObject miniGun;
 
     [Header("Player Cam")]
     private Camera _camera;
@@ -19,6 +28,7 @@ public class GameManager : MonoBehaviour
     public ScriptableSkillNode rootNode;
     public GameObject skillButtonPrefab;
     public RectTransform skilltreePanel;
+    public ScriptableSkilltreeSave skilltreeData;
     private SkillManager skillManager;
 
     [Header("Enemy Info")]
@@ -47,31 +57,50 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         _camera = Camera.main;
+        playerCollider = player.GetComponent<BoxCollider2D>();
         playerControler = new PlayerControler(player, playerMovementSpeed, playerDrag, playerProfile);
-        skillManager = new SkillManager(rootNode, skillButtonPrefab, skilltreePanel, playerControler, this, playerProfile);
+        skillManager = new SkillManager(rootNode, skillButtonPrefab, skilltreePanel, playerControler, this, playerProfile, skilltreeData);
         enemySpawner = new EnemySpawner(this, player, spawnPoints, enemyWaves, enemyPrefab, eEnemyPrefab);
-        enemySpawner.ReadNextWave();
-        StartCoroutine(enemySpawner.SpawnEnemies());
-        StartCoroutine(enemySpawner.SpawnEEnemies());
-
     }
 
-    public void StartGame()
+    public void SetMenuStartGame()
     {
+        state = gameState.Playing;
         enemySpawner.ReadNextWave();
         StartCoroutine(enemySpawner.SpawnEnemies());
         StartCoroutine(enemySpawner.SpawnEEnemies());
+    }
+
+    public void SetMenuSkillTree()
+    {
+        state = gameState.SkillTreeMenu;
+    }
+
+    public void SetMenuGameOver()
+    {
+        state = gameState.GameOverMenu;
+    }
+
+    public void SetMenuMainMenu()
+    {
+        state = gameState.StartingMenu;
     }
 
     // Update is called once per frame
     void Update()
     {
+        Vector2 playerPos = player.transform.position;
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 shootDirection = (mousePos - playerPos).normalized;
+
         playerControler.SetDragAndSpeed(playerMovementSpeed, playerDrag); // for tweak reasons
         switch (state)
         {
             case gameState.Playing:
                 SwitchButtonState(menuButtons, false);
+                SwitchButtonState(skillButtonList, false);
                 SwitchButtonState(playingUI, true);
+
                 break;
             case gameState.StartingMenu:
                 SwitchButtonState(menuButtons, true);
@@ -87,6 +116,28 @@ public class GameManager : MonoBehaviour
                 SwitchButtonState(playingUI, false);
                 break;
         }
+
+        if (playerControler.hp <= 0)
+        {
+            state = gameState.GameOverMenu;
+        }
+
+        foreach (var enemy in aliveEnemies)
+        {
+            if (playerCollider.bounds.Intersects(enemy.collider.bounds))
+            {
+                Debug.Log("Collision with enemy!");
+            }
+            foreach (var bullet in bulletList)
+            {
+                CircleCollider2D bulletColider = bullet.bulletObject.GetComponent<CircleCollider2D>();
+                if (bulletColider.bounds.Intersects(enemy.collider.bounds))
+                {
+                    //enemy.hp -= bullet.damage;
+                }
+            }
+        }
+
     }
 
     private void FixedUpdate()
@@ -101,6 +152,10 @@ public class GameManager : MonoBehaviour
                     enemy.MoveEnemy();
                 }
             }
+            if (aliveEnemies != null)
+            {
+                state = gameState.SkillTreeMenu;
+            }
             Camera.main.transform.position = new Vector3(player.transform.position.x, player.transform.position.y, -10f);
         }
     }
@@ -111,5 +166,11 @@ public class GameManager : MonoBehaviour
         {
             button.gameObject.SetActive(state);
         }
+    }
+
+    public void QuitGame()
+    {
+        skillManager.saveSkills();
+        Application.Quit();
     }
 }
