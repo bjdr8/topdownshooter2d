@@ -8,15 +8,15 @@ public class PassiveEffect : ScriptableObject
 {
     public List<ScriptableObject> rawEffects;
 
-    private List<IAppliable> _effects;
+    private List<IPassiveEffect> _effects;
 
     public void Init()
     {
-        _effects = new List<IAppliable>();
+        _effects = new List<IPassiveEffect>();
 
         foreach (var effect in rawEffects)
         {
-            if (effect is IAppliable strategy)
+            if (effect is IPassiveEffect strategy)
             {
                 _effects.Add(strategy);
             }

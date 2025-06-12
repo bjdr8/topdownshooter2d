@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class PlayerControler
+public class PlayerControler // in de toekomst playercontroler manager maken die elk player script aan stuurt maar nu gewoon deze als de volledige player gebruiken
 {
     GameObject player;
     private float horizontalInput;
@@ -15,13 +15,15 @@ public class PlayerControler
     private float playerDrag;
 
     private Rigidbody2D rb;
+    private PlayerProfile profile;
 
-    public PlayerControler(GameObject player, float movementSpeed, float playerDrag)
+    public PlayerControler(GameObject player, float movementSpeed, float playerDrag, PlayerProfile profile)
     {
         rb = player.GetComponent<Rigidbody2D>();
         this.movementSpeed = movementSpeed;
         this.playerDrag = playerDrag;
         rb.drag = playerDrag;
+        this.profile = profile;
     }
 
     public void MovePlayer()

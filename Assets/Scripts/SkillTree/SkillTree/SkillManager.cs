@@ -23,7 +23,7 @@ public class SkillManager
     private SkillGroup skilltree; // skill tree start
     private ScriptableSkilltreeSave skilltreeData = new ScriptableSkilltreeSave(); // script to save and load data to a txt file
 
-    public SkillManager(ScriptableSkillNode startingNode, GameObject buttonPrefab, RectTransform skilltreeBorders, PlayerControler player, GameManager gameManager)
+    public SkillManager(ScriptableSkillNode startingNode, GameObject buttonPrefab, RectTransform skilltreeBorders, PlayerControler player, GameManager gameManager, PlayerProfile playerProfile)
     {
         rootNode = startingNode;
         skillButtonPrefab = buttonPrefab;
@@ -33,7 +33,7 @@ public class SkillManager
         this.gameManager = gameManager;
 
         //gameDataFacade = new GameDataFacade();
-        playerProfile = new PlayerProfile();
+        this.playerProfile = playerProfile;
 
         skilltree = GenerateSkilltree(this.rootNode);
         Debug.Log("Skill tree gegenereerd!");
