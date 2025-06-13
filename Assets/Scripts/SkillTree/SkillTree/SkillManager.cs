@@ -151,23 +151,6 @@ public class SkillManager
         }
     }
 
-    private void ObjectiveySkillTree(SkillLeaf node, string indent = "")
-    {
-        if (node is SkillGroup group)
-        {
-            Debug.Log($"{indent}Group: {group.skillName} (XP: {group.xpCosts})");
-
-            foreach (SkillLeaf child in group.children)
-            {
-                LogSkillTree(child, indent + "  ");
-            }
-        }
-        else if (node is SkillNode skill)
-        {
-            Debug.Log($"{indent}Skill: {skill.skillName} (XP: {skill.xpCosts})");
-        }
-    }
-
     float GetSubtreeWidth(SkillLeaf skill)
     {
         if (skill is SkillGroup group)
