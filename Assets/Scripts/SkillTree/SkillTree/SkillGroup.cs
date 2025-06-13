@@ -2,14 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SkillGroup : SkillLeaf
 {
     public List<SkillLeaf> children = new List<SkillLeaf>();
-    public PlayerProfile profile;
-    public ScriptableSkilltreeSave skilltreeData;
-
-    public SkillGroup(PlayerProfile profile, ScriptableSkilltreeSave skilltreeData)
+    public SkillGroup(PlayerProfile profile, SkilltreeSave skilltreeData)
     {
         this.profile = profile;
         this.profile.OnXpChanged += ImageChange;
@@ -31,9 +29,12 @@ public class SkillGroup : SkillLeaf
             active = true;
             bought = true;
             skilltreeData.AddUnlockedSkill(skillName);
-            foreach (var child in children)
+            if (children.Count > 0)
             {
-                child.unlocked = true;
+                foreach (var child in children)
+                {
+                    child.unlocked = true;
+                }
             }
             player.RemoveXp(xpCosts);
         }
@@ -60,8 +61,8 @@ public class SkillGroup : SkillLeaf
         Debug.Log("item got unlocked now u can buy it with xp");
     }
 
-    public void ImageChange()
+    public override void ImageChange()
     {
-
+        base.ImageChange();
     }
 }

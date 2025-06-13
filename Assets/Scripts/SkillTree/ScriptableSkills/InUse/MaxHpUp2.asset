@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 054d7cdfd5b2d9643a9940f5ab53e8a9, type: 3}
+  m_Name: MaxHpUp2
+  m_EditorClassIdentifier: 
+  children:
+  - {fileID: 11400000, guid: 3c8d16a5730ce9b4b8344a579cdbf054, type: 2}
+  effects:
+  - {fileID: 11400000, guid: 0f1e8faab4aa27945914b0fe46a19c58, type: 2}
+  skillName: MaxHpUp2
+  xpCosts: 40
+  unlocked: 0
+  bought: 0
+  active: 0

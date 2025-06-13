@@ -10,13 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 054d7cdfd5b2d9643a9940f5ab53e8a9, type: 3}
-  m_Name: Root
+  m_Name: Speed 2
   m_EditorClassIdentifier: 
   children:
-  - {fileID: 11400000, guid: 2f2c5a9e5a71261489b61e6e2375398b, type: 2}
-  - {fileID: 11400000, guid: 34dc12432b1d6424cbf2f132b820f21f, type: 2}
-  skillName: SkillTreeRoot
-  xpCosts: 1
-  unlocked: 1
+  - {fileID: 11400000, guid: 7be0381132a7f5749965dc8e54416ad4, type: 2}
+  effects:
+  - {fileID: 11400000, guid: 835dbed72d874514094af60c0f27477c, type: 2}
+  skillName: Speed2
+  xpCosts: 80
+  unlocked: 0
   bought: 0
   active: 0

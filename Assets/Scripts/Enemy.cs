@@ -9,5 +9,6 @@ public class Enemy : BaseEnemy
         hp = 3;
         moveSpeed = 3f;
         damage = 1;
+        xpWorth = 1;
     }
 }

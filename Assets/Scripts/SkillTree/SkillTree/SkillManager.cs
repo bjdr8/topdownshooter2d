@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -21,7 +22,9 @@ public class SkillManager
     GameManager gameManager;
 
     private SkillGroup skilltree; // skill tree start
-    private ScriptableSkilltreeSave skilltreeData; // script to save and load data to a txt file
+    private SkilltreeSave skilltreeData; // script to save and load data to a txt file
+    
+    public List<SkillLeaf> skillsList = new List<SkillLeaf>();
 
     public SkillManager(ScriptableSkillNode startingNode,
            GameObject buttonPrefab,
@@ -29,13 +32,14 @@ public class SkillManager
            PlayerControler player,
            GameManager gameManager,
            PlayerProfile playerProfile,
-           ScriptableSkilltreeSave skilltreeDatapre)
+           SkilltreeSave skilltreeDatapre)
     {
         rootNode = startingNode;
         skillButtonPrefab = buttonPrefab;
         skilltreePanel = skilltreeBorders;
         playerControler = player;
         skilltreeData = skilltreeDatapre;
+        skilltreeData.skillManager = this;
 
         this.gameManager = gameManager;
 
@@ -51,9 +55,19 @@ public class SkillManager
     private SkillGroup GenerateSkilltree(ScriptableSkillNode rootNode)
     {
         SkillGroup currentNode = new SkillGroup(playerProfile, skilltreeData);
+        skillsList.Add(currentNode);
         currentNode.skillName = rootNode.skillName;
         currentNode.xpCosts = rootNode.xpCosts;
         currentNode.unlocked = rootNode.unlocked;
+        currentNode.effects = rootNode.effects;
+
+        if (currentNode.effects != null) {
+            foreach (var effect in currentNode.effects)
+            {
+                effect.nameId = rootNode.skillName;
+                //Debug.Log(effect.nameId);
+            }
+        }
 
         foreach (ScriptableSkillNode child in rootNode.children)
         {
@@ -62,7 +76,18 @@ public class SkillManager
                 SkillNode skillNode = new SkillNode(playerProfile, skilltreeData);
                 skillNode.skillName = child.skillName;
                 skillNode.xpCosts = child.xpCosts;
+                skillNode.effects = child.effects;
+
+                if (skillNode.effects != null)
+                {
+                    foreach (var effect in skillNode.effects)
+                    {
+                        effect.nameId = child.skillName;
+                    }
+                }
+
                 currentNode.children.Add(skillNode);
+                skillsList.Add(skillNode);
             }
             else
             {
@@ -70,8 +95,7 @@ public class SkillManager
                 currentNode.children.Add(childGroup);
             }
         }
-        //skillNodes[count].skill = currentNode;
-        //count++;
+
         return currentNode;
     }
 
@@ -79,7 +103,7 @@ public class SkillManager
     {
         if (node is SkillGroup group)
         {
-            Debug.Log($"{indent}Group: {group.skillName} (XP: {group.xpCosts})");
+            //Debug.Log($"{indent}Group: {group.skillName} (XP: {group.xpCosts})");
 
             foreach (SkillLeaf child in group.children)
             {
@@ -88,7 +112,7 @@ public class SkillManager
         }
         else if (node is SkillNode skill)
         {
-            Debug.Log($"{indent}Skill: {skill.skillName} (XP: {skill.xpCosts})");
+            //Debug.Log($"{indent}Skill: {skill.skillName} (XP: {skill.xpCosts})");
         }
     }
 
@@ -99,13 +123,14 @@ public class SkillManager
         RectTransform rt = buttonObj.GetComponent<RectTransform>();
         rt.anchoredPosition = position;
 
-        Image iconImage = buttonObj.GetComponentInChildren<Image>();
-        //iconImage.sprite = skill.icon;
+        Image Image = buttonObj.GetComponentInChildren<Image>();
+        
+        skill.image = Image;
 
         TextMeshProUGUI text = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
         text.text = skill.skillName;
         Button button = buttonObj.GetComponent<Button>();
-        button.onClick.AddListener(() => Debug.Log($"Clicked on {skill.skillName}"));
+        //button.onClick.AddListener(() => Debug.Log($"Clicked on {skill.skillName}"));
         button.onClick.AddListener(() => skill.Buy(playerProfile));
 
 
@@ -161,14 +186,19 @@ public class SkillManager
         return 1f; // Een enkele node is 1 eenheid breed
     }
 
-    public void saveSkills()
+    public void SaveSkills()
     {
         //gameDataFacade.SaveAll();
         skilltreeData.Save();
     }
 
-    public void loadSkills()
+    public void LoadSkills()
     {
         skilltreeData.Load();
+    }
+
+    public void ResetSkills()
+    {
+        skilltreeData.ResetSkills();
     }
 }

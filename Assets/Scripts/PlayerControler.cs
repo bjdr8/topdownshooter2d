@@ -7,7 +7,10 @@ public class PlayerControler // in de toekomst playercontroler manager maken die
 {
     GameObject player;
     public int maxHp = 6;
-    public int hp = 6;
+    public int hp;
+    public int hpRegen = 0;
+    public float hpRegenTimer = 10;
+    public float hpRegenSetTimer = 60;
     private Weapon equipedWeapon;
 
     private List<GameObject> weapons;
@@ -17,7 +20,7 @@ public class PlayerControler // in de toekomst playercontroler manager maken die
 
     private Vector2 moveDirection;
 
-    private float movementSpeed;
+    public float movementSpeed;
     private float playerDrag;
 
     private Rigidbody2D rb;
@@ -29,8 +32,16 @@ public class PlayerControler // in de toekomst playercontroler manager maken die
     private Pistol pistol;
     private MiniGun minigun;
 
+    public bool dashUnlocked = false;
+    public bool dashAtivated = false;
+    private float dashDistance = 2f;
+    private float dashCooldown = 2.0f;
+    public float dashCooldownTimer = 0f;
+    public float dashForce = 10f;
+
     public PlayerControler(GameObject player, float movementSpeed, float playerDrag, PlayerProfile profile, List<GameObject> weapons, GameManager gameManager)
     {
+        hp = maxHp;
         rb = player.GetComponent<Rigidbody2D>();
         this.movementSpeed = movementSpeed;
         this.playerDrag = playerDrag;
@@ -86,10 +97,37 @@ public class PlayerControler // in de toekomst playercontroler manager maken die
         }
     }
 
-    public void MovePlayer()
+    public void TimersCountDown()
     {
-        MyInput();
-        MovePlayerLogic();
+        hpRegenTimer -= Time.deltaTime;
+        dashCooldownTimer -= Time.deltaTime;
+        if (hpRegenTimer <= 0)
+        {
+            hpRegenTimer = hpRegenSetTimer;
+            hp += hpRegen;
+            if (hp > maxHp)
+            {
+                hp = maxHp;
+            }
+        }
+    }
+
+    public void Dash()
+    {
+        Vector2 dashDirection = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
+
+        if (dashDirection == Vector2.zero)
+        {
+            dashDirection = Vector2.up;
+        }
+
+        Vector2 dashTarget = rb.position + dashDirection * dashDistance;
+
+        rb.MovePosition(dashTarget); //teleport option
+
+        //rb.AddForce(dashDirection * dashForce, ForceMode2D.Impulse);
+        dashCooldownTimer = dashCooldown;
+        dashAtivated = false;
     }
 
     public void SetDragAndSpeed(float speed, float drag)
@@ -98,16 +136,17 @@ public class PlayerControler // in de toekomst playercontroler manager maken die
         rb.drag = drag;
     }
 
-    private void MyInput()
+    public void MyInput()
     {
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
     }
 
-    private void MovePlayerLogic()
+    public void MovePlayerLogic()
     {
         Vector2 moveDirection = new Vector2(horizontalInput, verticalInput).normalized;
         rb.AddForce(moveDirection * movementSpeed, ForceMode2D.Force);
+        Debug.Log(movementSpeed);
     }
 
     private void SetupWeapons()

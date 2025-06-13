@@ -4,10 +4,11 @@ using TMPro;
 using UnityEngine;
 
 
-[CreateAssetMenu(fileName = "New SkillNode", menuName = "SkillNode")]
+[CreateAssetMenu(fileName = "New SkillNode", menuName = "Skill System/SkillNode")]
 public class ScriptableSkillNode : ScriptableObject
 {
     public List<ScriptableSkillNode> children;
+    public List<BaseEffect> effects;
 
     public string skillName;
     public int xpCosts;

@@ -9,7 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3521c54ac4ace9498ed9427b180d9be, type: 3}
-  m_Name: SkillTreeData
+  m_Script: {fileID: 11500000, guid: 16fa709d0e590b84f90cadd94c10ea17, type: 3}
+  m_Name: 1Speed
   m_EditorClassIdentifier: 
-  unlockedSkills: []
+  nameId: 
+  statType: movementSpeed
+  value: 25

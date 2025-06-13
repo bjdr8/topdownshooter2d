@@ -2,12 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Unity.VisualScripting.Metadata;
 
 public class SkillNode : SkillLeaf
 {
-    public PlayerProfile profile;
-    public ScriptableSkilltreeSave skilltreeData;
-    public SkillNode(PlayerProfile profile, ScriptableSkilltreeSave skilltreeData)
+    public SkillNode(PlayerProfile profile, SkilltreeSave skilltreeData)
     {
         this.profile = profile;
         this.profile.OnXpChanged += ImageChange;
@@ -18,16 +17,18 @@ public class SkillNode : SkillLeaf
         if (unlocked == false) 
         {
             Debug.Log("This skill is still locked");
-            return; 
+            return;
         }
 
-        if (xpCosts <= player.xp)
+        if (xpCosts <= player.xp && bought == false)
         {
-            Debug.Log("u bought the item");
+            Debug.Log("aquired skill");
             active = true;
+            bought = true;
             skilltreeData.AddUnlockedSkill(skillName);
             player.RemoveXp(xpCosts);
         }
+
         else
         {
             Debug.Log("not enough xp to buy");
@@ -45,8 +46,8 @@ public class SkillNode : SkillLeaf
     {
         Debug.Log("item got unlocked now u can buy it with xp");
     }
-    public void ImageChange()
+    public override void ImageChange()
     {
-
+        base.ImageChange();
     }
 }

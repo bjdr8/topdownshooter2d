@@ -39,6 +39,11 @@ public class EnemySpawner
         waveCounter++;
     }
 
+    public void ResetWaves()
+    {
+        waveCounter = 0;
+    }
+
     public IEnumerator SpawnEnemies()
     {
         for (int i = 0; i < enemyCount; i++)

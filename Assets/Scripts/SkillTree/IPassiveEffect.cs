@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IPassiveEffect
+public abstract class BaseEffect : ScriptableObject
 {
-    public void ApplyEffect();
-    public void RevertEffect();
+    public string nameId;
+    public abstract void ApplyEffect(PlayerControler player);
+    public abstract void RevertEffect(PlayerControler player);
 }

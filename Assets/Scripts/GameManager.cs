@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using static UnityEditor.Timeline.TimelinePlaybackControls;
 
 public class GameManager : MonoBehaviour
 {
@@ -26,7 +28,9 @@ public class GameManager : MonoBehaviour
     public ScriptableSkillNode rootNode;
     public GameObject skillButtonPrefab;
     public RectTransform skilltreePanel;
-    public ScriptableSkilltreeSave skilltreeData;
+    public PassiveEffect passiveEffect;
+    public List<BaseEffect> AllEffects;
+    private SkilltreeSave skilltreeData;
     private SkillManager skillManager;
 
     [Header("Enemy Info")]
@@ -41,11 +45,18 @@ public class GameManager : MonoBehaviour
     public List<GameObject> menuButtons;
     public List<GameObject> skillButtonList;
     public List<GameObject> gameOverButtons;
+    public List<GameObject> WinUIList;
     public List<GameObject> playingUI;
+    public TextMeshProUGUI hpCounter;
+    public TextMeshProUGUI dashCooldownCounter;
+    public TextMeshProUGUI xpCounter;
+    public TextMeshProUGUI WinText;
+
     private enum gameState {
         StartingMenu,
         GameOverMenu,
         SkillTreeMenu,
+        WinMenu,
         Playing
     }
     private gameState state = gameState.StartingMenu;
@@ -54,23 +65,27 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        passiveEffect = new PassiveEffect(AllEffects);
+        skilltreeData = new SkilltreeSave(passiveEffect);
         TurnOffAllUI();
         _camera = Camera.main;
         playerCollider = player.GetComponent<BoxCollider2D>();
+        playerControler = new PlayerControler(player, playerMovementSpeed, playerDrag, playerProfile, weapons, this);
         skillManager = new SkillManager(rootNode, skillButtonPrefab, skilltreePanel, playerControler, this, playerProfile, skilltreeData);
         enemySpawner = new EnemySpawner(this, player, spawnPoints, enemyWaves, enemyPrefab, eEnemyPrefab);
-        playerControler = new PlayerControler(player, playerMovementSpeed, playerDrag, playerProfile, weapons, this);
     }
 
     public void SetMenuStartGame()
     {
+        passiveEffect.Apply(playerControler);
         playerControler.hp = playerControler.maxHp;
-        enemySpawner.waveCounter = 0;
+        //enemySpawner.waveCounter = 0; //activate again when u can play waves one after the other
         enemySpawner.ReadNextWave();
         StartCoroutine(enemySpawner.SpawnEnemies());
         StartCoroutine(enemySpawner.SpawnEEnemies());
         state = gameState.Playing;
     }
+
 
     public void SetMenuSkillTree()
     {
@@ -94,20 +109,51 @@ public class GameManager : MonoBehaviour
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 shootDirection = (mousePos - playerPos).normalized;
 
-        playerControler.SetDragAndSpeed(playerMovementSpeed, playerDrag); // for tweak reasons
+        //playerControler.SetDragAndSpeed(playerMovementSpeed, playerDrag); // for tweak reasonss
         switch (state)
         {
             case gameState.Playing:
-                SwitchButtonState(menuButtons, false);
-                SwitchButtonState(skillButtonList, false);
+                TurnOffAllUI();
                 SwitchButtonState(playingUI, true);
 
+                hpCounter.text = ("Max Hp = " + playerControler.maxHp +
+                                  " Current Hp = " + playerControler.hp);
+
+                if (playerControler.dashUnlocked)
+                {
+                    if (playerControler.dashCooldownTimer <= 0)
+                    {
+                        dashCooldownCounter.text = ("Dashcooldown Timer = " + 0);
+                    }
+                    else
+                    {
+                        dashCooldownCounter.text = ("Dashcooldown Timer = " + playerControler.dashCooldownTimer);
+                    }
+                }
+                else
+                {
+                    dashCooldownCounter.text = "";
+                }
+
+                xpCounter.text = ("Total XP = " + playerProfile.xp);
+
                 playerControler.ChangeWeapon();
+                playerControler.TimersCountDown();
+                if (Input.GetKeyDown(KeyCode.Space) && playerControler.dashCooldownTimer <= 0 && playerControler.dashUnlocked == true)
+                {
+                    playerControler.dashAtivated = true;
+                }
                 playerControler.Shooting(shootDirection);
 
                 if (playerControler.hp <= 0)
                 {
+                    enemySpawner.ResetWaves();
                     state = gameState.GameOverMenu;
+                }
+
+                if (aliveEnemies.Count <= 0 || aliveEnemies == null)
+                {
+                    state = gameState.WinMenu;
                 }
 
                 if (aliveEnemies == null)
@@ -120,6 +166,7 @@ public class GameManager : MonoBehaviour
                     if (enemy.hp <= 0)
                     {
                         Destroy(enemy.enemy);
+                        playerProfile.AddXp(enemy.xpWorth);
                         aliveEnemies.RemoveAt(i);
                         continue; // Skip rest since enemy is removed
                     }
@@ -152,17 +199,35 @@ public class GameManager : MonoBehaviour
                 }
                 break;
             case gameState.StartingMenu:
+                TurnOffAllUI();
+                passiveEffect.Revert(playerControler);
                 SwitchButtonState(menuButtons, true);
-                SwitchButtonState(skillButtonList, false);
-                SwitchButtonState(gameOverButtons, false);   
                 break;
             case gameState.SkillTreeMenu:
-                SwitchButtonState(menuButtons, false);
+                TurnOffAllUI();
                 SwitchButtonState(skillButtonList, true);
+                xpCounter.text = ("Total XP = " + playerProfile.xp);
+                foreach (SkillLeaf leaf in skillManager.skillsList)
+                {
+                    leaf.ImageChange();
+                }
                 break;
             case gameState.GameOverMenu:
+                TurnOffAllUI();
                 SwitchButtonState(gameOverButtons, true);
-                SwitchButtonState(playingUI, false);
+                break;
+            case gameState.WinMenu:
+                TurnOffAllUI();
+                SwitchButtonState(WinUIList, true);
+
+                if (enemySpawner.waveCounter >= 5)
+                {
+                    WinText.text = ("You Win");
+                }
+                else
+                {
+                    WinText.text = ("You have beaten wave " + enemySpawner.waveCounter);
+                }
                 break;
         }
     }
@@ -171,7 +236,13 @@ public class GameManager : MonoBehaviour
     {
         if (state == gameState.Playing)
         {
-            playerControler.MovePlayer();
+            playerControler.MyInput();
+            playerControler.MovePlayerLogic();
+
+            if (playerControler.dashAtivated == true)
+            {
+                playerControler.Dash();
+            }
             if (aliveEnemies.Count > 0 && aliveEnemies != null)
             {
                 foreach (var enemy in aliveEnemies)
@@ -190,18 +261,33 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void SwitchButtonState(List<GameObject> buttonsList, bool state)
+    public void SwitchButtonState(List<GameObject> UIList, bool state)
     {
-        foreach (var button in buttonsList)
+        foreach (var UI in UIList)
         {
-            button.gameObject.SetActive(state);
+            UI.gameObject.SetActive(state);
         }
     }
 
     public void QuitGame()
     {
-        skillManager.saveSkills();
+        skillManager.SaveSkills();
         Application.Quit();
+    }
+
+    public void SaveSkills()
+    {
+        skillManager.SaveSkills();
+    }
+
+    public void LoadSkills()
+    {
+        skillManager.LoadSkills();
+    }
+
+    public void ResetSkills()
+    {
+        skillManager.ResetSkills();
     }
 
     private void TurnOffAllUI()
@@ -209,6 +295,7 @@ public class GameManager : MonoBehaviour
         SwitchButtonState(menuButtons, false);
         SwitchButtonState(skillButtonList, false);
         SwitchButtonState(gameOverButtons, false);
+        SwitchButtonState(WinUIList, false);
         SwitchButtonState(playingUI, false);
     }
 }

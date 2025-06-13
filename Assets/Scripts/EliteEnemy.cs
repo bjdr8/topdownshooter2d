@@ -9,5 +9,6 @@ public class EliteEnemy : BaseEnemy
         hp = 10;
         moveSpeed = 3.5f;
         damage = 2;
+        xpWorth = 5;
     }
 }

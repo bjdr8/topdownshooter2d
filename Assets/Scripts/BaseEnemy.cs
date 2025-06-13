@@ -13,6 +13,7 @@ public class BaseEnemy
     protected float moveSpeed;
     public float hp;
     public int damage;
+    public int xpWorth;
 
     protected Rigidbody2D rb;
     public BaseEnemy(GameObject player, GameObject enemy)
