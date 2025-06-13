@@ -1,11 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class PlayerControler // in de toekomst playercontroler manager maken die elk player script aan stuurt maar nu gewoon deze als de volledige player gebruiken
 {
-    GameObject player;
     public int maxHp = 6;
     public int hp;
     public int hpRegen = 0;
@@ -18,10 +15,7 @@ public class PlayerControler // in de toekomst playercontroler manager maken die
     private float horizontalInput;
     private float verticalInput;
 
-    private Vector2 moveDirection;
-
     public float movementSpeed;
-    private float playerDrag;
 
     private Rigidbody2D rb;
     private PlayerProfile profile;
@@ -44,7 +38,6 @@ public class PlayerControler // in de toekomst playercontroler manager maken die
         hp = maxHp;
         rb = player.GetComponent<Rigidbody2D>();
         this.movementSpeed = movementSpeed;
-        this.playerDrag = playerDrag;
         rb.drag = playerDrag;
         this.profile = profile;
         this.weapons = weapons;

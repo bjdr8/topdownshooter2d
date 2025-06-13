@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Profiling;
 using UnityEngine.UI;
 
 public abstract class SkillLeaf
@@ -21,7 +19,7 @@ public abstract class SkillLeaf
     public abstract void Buy(PlayerProfile player);
 
     public abstract int Reset();
-    public virtual void ImageChange() 
+    public virtual void ImageChange()
     {
         if (bought == true)
         {

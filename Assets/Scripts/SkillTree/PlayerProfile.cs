@@ -1,13 +1,11 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerProfile
 {
     public event Action OnXpChanged;
     public int xp { get; private set; } = 500;
-    private int ProfileLevel;
+    private int profileLevel;
 
     public PlayerProfile()
     {
@@ -29,12 +27,12 @@ public class PlayerProfile
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

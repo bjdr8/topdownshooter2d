@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using UnityEditor;
 using UnityEngine;
 
 public class SkilltreeSave
@@ -70,7 +69,9 @@ public class SkilltreeSave
                 skill.unlocked = true;
                 skill.active = false;
                 skill.bought = false;
-            } else {
+            }
+            else
+            {
                 skill.unlocked = false;
                 skill.active = false;
                 skill.bought = false;

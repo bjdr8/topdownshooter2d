@@ -1,8 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -19,9 +16,6 @@ public class GameManager : MonoBehaviour
     public List<GameObject> weapons;
     public GameObject bulletObjectPrefab;
     public List<Bullet> bulletList = new List<Bullet>();
-
-    [Header("Player Cam")]
-    private Camera _camera;
 
     [Header("SKillTree info")]
     public ScriptableSkillNode rootNode;
@@ -51,14 +45,15 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI xpCounter;
     public TextMeshProUGUI WinText;
 
-    private enum gameState {
+    private enum GameState
+    {
         StartingMenu,
         GameOverMenu,
         SkillTreeMenu,
         WinMenu,
         Playing
     }
-    private gameState state = gameState.StartingMenu;
+    private GameState state = GameState.StartingMenu;
 
 
     // Start is called before the first frame update
@@ -67,7 +62,6 @@ public class GameManager : MonoBehaviour
         passiveEffect = new PassiveEffect(AllEffects);
         skilltreeData = new SkilltreeSave(passiveEffect);
         TurnOffAllUI();
-        _camera = Camera.main;
         playerCollider = player.GetComponent<BoxCollider2D>();
         playerControler = new PlayerControler(player, playerMovementSpeed, playerDrag, playerProfile, weapons, this);
         skillManager = new SkillManager(rootNode, skillButtonPrefab, skilltreePanel, playerControler, this, playerProfile, skilltreeData);
@@ -82,23 +76,23 @@ public class GameManager : MonoBehaviour
         enemySpawner.ReadNextWave();
         StartCoroutine(enemySpawner.SpawnEnemies());
         StartCoroutine(enemySpawner.SpawnEEnemies());
-        state = gameState.Playing;
+        state = GameState.Playing;
     }
 
 
     public void SetMenuSkillTree()
     {
-        state = gameState.SkillTreeMenu;
+        state = GameState.SkillTreeMenu;
     }
 
     public void SetMenuGameOver()
     {
-        state = gameState.GameOverMenu;
+        state = GameState.GameOverMenu;
     }
 
     public void SetMenuMainMenu()
     {
-        state = gameState.StartingMenu;
+        state = GameState.StartingMenu;
     }
 
     // Update is called once per frame
@@ -111,7 +105,7 @@ public class GameManager : MonoBehaviour
         //playerControler.SetDragAndSpeed(playerMovementSpeed, playerDrag); // for tweak reasonss
         switch (state)
         {
-            case gameState.Playing:
+            case GameState.Playing:
                 TurnOffAllUI();
                 SwitchButtonState(playingUI, true);
 
@@ -147,16 +141,16 @@ public class GameManager : MonoBehaviour
                 if (playerControler.hp <= 0)
                 {
                     enemySpawner.ResetWaves();
-                    state = gameState.GameOverMenu;
+                    state = GameState.GameOverMenu;
                 }
 
                 if (aliveEnemies.Count <= 0 || aliveEnemies == null)
                 {
-                    state = gameState.WinMenu;
+                    state = GameState.WinMenu;
                 }
 
                 if (aliveEnemies == null)
-                { 
+                {
                     return;
                 }
                 for (int i = aliveEnemies.Count - 1; i >= 0; i--)
@@ -197,12 +191,12 @@ public class GameManager : MonoBehaviour
                     }
                 }
                 break;
-            case gameState.StartingMenu:
+            case GameState.StartingMenu:
                 TurnOffAllUI();
                 passiveEffect.Revert(playerControler);
                 SwitchButtonState(menuButtons, true);
                 break;
-            case gameState.SkillTreeMenu:
+            case GameState.SkillTreeMenu:
                 TurnOffAllUI();
                 SwitchButtonState(skillButtonList, true);
                 xpCounter.text = ("Total XP = " + playerProfile.xp);
@@ -211,11 +205,11 @@ public class GameManager : MonoBehaviour
                     leaf.ImageChange();
                 }
                 break;
-            case gameState.GameOverMenu:
+            case GameState.GameOverMenu:
                 TurnOffAllUI();
                 SwitchButtonState(gameOverButtons, true);
                 break;
-            case gameState.WinMenu:
+            case GameState.WinMenu:
                 TurnOffAllUI();
                 SwitchButtonState(WinUIList, true);
 
@@ -233,7 +227,7 @@ public class GameManager : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (state == gameState.Playing)
+        if (state == GameState.Playing)
         {
             playerControler.MyInput();
             playerControler.MovePlayerLogic();

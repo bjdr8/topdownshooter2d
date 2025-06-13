@@ -1,12 +1,7 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
-using static Unity.VisualScripting.Member;
 
 public class SkillManager
 {
@@ -23,7 +18,7 @@ public class SkillManager
 
     private SkillGroup skilltree; // skill tree start
     private SkilltreeSave skilltreeData; // script to save and load data to a txt file
-    
+
     public List<SkillLeaf> skillsList = new List<SkillLeaf>();
 
     public SkillManager(ScriptableSkillNode startingNode,
@@ -61,7 +56,8 @@ public class SkillManager
         currentNode.unlocked = rootNode.unlocked;
         currentNode.effects = rootNode.effects;
 
-        if (currentNode.effects != null) {
+        if (currentNode.effects != null)
+        {
             foreach (var effect in currentNode.effects)
             {
                 effect.nameId = rootNode.skillName;
@@ -124,7 +120,7 @@ public class SkillManager
         rt.anchoredPosition = position;
 
         Image Image = buttonObj.GetComponentInChildren<Image>();
-        
+
         skill.image = Image;
 
         TextMeshProUGUI text = buttonObj.GetComponentInChildren<TextMeshProUGUI>();

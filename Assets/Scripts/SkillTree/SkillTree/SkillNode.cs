@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SkillNode : SkillLeaf
@@ -13,7 +10,7 @@ public class SkillNode : SkillLeaf
     }
     public override void Buy(PlayerProfile player)
     {
-        if (unlocked == false) 
+        if (unlocked == false)
         {
             Debug.Log("This skill is still locked");
             return;

@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 
 public class EnemySpawner
 {
@@ -12,7 +11,7 @@ public class EnemySpawner
 
     private GameObject enemyPrefab;
     private GameObject eEnemyPrefab;
-    private List <GameObject> spawnPoints;
+    private List<GameObject> spawnPoints;
     private GameObject player;
 
     private System.Random randomGen = new System.Random();
