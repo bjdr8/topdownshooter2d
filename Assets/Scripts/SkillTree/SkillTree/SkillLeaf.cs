@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.UI;
-using static Unity.VisualScripting.Metadata;
 
 public abstract class SkillLeaf
 {
